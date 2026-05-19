@@ -1,0 +1,18 @@
+# IIS3D — Integrated IDPS Security 3 Datasets
+# DOI: 10.34740/kaggle/dsv/12479689
+# Combines CSE-CIC-IDS2018, CIC-IoT2023, and UNSW-NB15
+# under the harmonised 83-feature / 34-class CICFlowMeter schema.
+
+defaults: default.yaml
+
+experiment:
+  name: ssl_graph_anomaly_iis3d
+  output_dir: outputs/iis3d
+
+data:
+  suite: iis3d
+  root: data/iis3d
+  kaggle_dataset: rogerpanel/integrated-idps-security-3-datasets
+  kaggle_doi: 10.34740/kaggle/dsv/12479689
+  expected_size_gb: 11.4
+  attack_taxonomy: cic_unified_34

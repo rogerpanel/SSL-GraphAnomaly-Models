@@ -1,0 +1,26 @@
+# IDS-PQC — Encrypted + Post-Quantum-Cryptography IDS dataset
+# DOI: 10.34740/kaggle/dsv/15424420
+# NF-CSE-CIC-IDS2018-v3 + CIC-PQC-OAV-2025 (~1.4M Kyber/Dilithium TLS handshakes)
+
+defaults: default.yaml
+
+experiment:
+  name: ssl_graph_anomaly_ids_pqc
+  output_dir: outputs/ids_pqc
+
+data:
+  suite: ids_pqc
+  root: data/ids_pqc
+  kaggle_dataset: rogerpanel/ids-encrypted-pqc-datasets
+  kaggle_doi: 10.34740/kaggle/dsv/15424420
+  expected_size_gb: 6.7
+  attack_taxonomy: pqc_unified_34
+  preprocessing:
+    standardize: zscore
+    clip_quantile: 0.999
+    # Additional PQC-specific features kept verbatim
+    pqc_handshake_features:
+      - kyber_keyshare_len
+      - dilithium_sig_len
+      - kex_group_id
+      - tls13_extension_count

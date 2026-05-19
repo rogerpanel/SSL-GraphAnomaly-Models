@@ -1,0 +1,18 @@
+# ICS3D — Integrated Cloud Security 3 Datasets
+# DOI: 10.34740/kaggle/dsv/12483891
+# Microsoft Cloud telemetry + Edge-IIoTset + Kubernetes container-security events
+# under the same 83-feature schema.
+
+defaults: default.yaml
+
+experiment:
+  name: ssl_graph_anomaly_ics3d
+  output_dir: outputs/ics3d
+
+data:
+  suite: ics3d
+  root: data/ics3d
+  kaggle_dataset: rogerpanel/integrated-cloud-security-3-datasets
+  kaggle_doi: 10.34740/kaggle/dsv/12483891
+  expected_size_gb: 9.8
+  attack_taxonomy: cloud_unified_34

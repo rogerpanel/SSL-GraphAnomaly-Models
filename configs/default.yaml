@@ -1,0 +1,126 @@
+# =============================================================================
+# Default configuration for SSL-GraphAnomaly.
+# All values match the hyperparameter table reported in §III–§IV of the
+# manuscript and the README hyperparameter table.
+# =============================================================================
+
+experiment:
+  name: ssl_graph_anomaly_default
+  seed: 17
+  seeds: [17, 42, 101, 1234, 31337]
+  output_dir: outputs/default
+  device: cuda          # cpu | cuda
+  precision: bf16       # fp32 | fp16 | bf16
+  num_workers: 8
+
+data:
+  suite: iis3d          # iis3d | ics3d | ids_pqc
+  root: data/iis3d
+  num_features: 83
+  num_classes: 34
+  benign_class_id: 0
+  window_seconds: 60
+  split:
+    train_benign: 0.60
+    calibration_benign: 0.10
+    val: 0.10
+    test: 0.20
+  preprocessing:
+    standardize: zscore
+    clip_quantile: 0.999
+    log1p_features: ["TotLen Fwd Pkts", "TotLen Bwd Pkts",
+                     "Flow Pkts/s", "Flow Byts/s"]
+
+graph:
+  builder: temporal_host
+  max_edges_per_window: 200000
+  max_neighbours: 32
+  symmetric: false
+
+model:
+  encoder:
+    type: egraphsage
+    hidden_dim: 128
+    num_layers: 2
+    aggregator: mean        # mean | max | pool
+    activation: relu
+    edge_feature_dim: 83
+    dropout: 0.10
+  streaming_variant:
+    enabled: true           # attention-gated batched encoder
+    proj_dim: 128
+    use_layer_norm: true
+  transformer_ae:
+    num_tokens: 8
+    num_layers: 2
+    num_heads: 4
+    ff_width_multiplier: 2  # FFN width = 2 * d
+    activation: gelu
+    positional_encoding: sinusoidal
+    dropout: 0.10
+  classification_head:
+    hidden_dims: [256, 128]
+    num_classes: 34
+    energy_push_weight: 2.0     # bias added to attack-class indices
+  energy:
+    use_mahalanobis: true
+    mahalanobis_lambda: 0.10
+    mahalanobis_eps: 1.0e-6
+    mlp_hidden: [128, 64]
+
+loss:
+  reconstruction_weight: 1.0
+  contrastive_weight: 1.0
+  energy_margin_weight: 0.5
+  distillation_weight: 0.25
+  margin: 1.0
+  infonce_temperature: 0.5
+  distillation_temperature: 2.0
+  mask_rate: 0.15
+  feature_dropout: 0.10
+  gaussian_jitter_sigma: 0.05
+
+optim:
+  optimizer: adamw
+  learning_rate: 5.0e-4
+  weight_decay: 1.0e-5
+  beta1: 0.9
+  beta2: 0.999
+  scheduler: cosine
+  warmup_steps: 1000
+  gradient_clip: 1.0
+
+train:
+  ssl_epochs: 30
+  distill_epochs: 10
+  batch_size: 1024
+  log_every: 50
+  eval_every_epochs: 1
+  checkpoint_dir: outputs/default/ckpts
+  early_stop_patience: 5
+
+conformal:
+  enabled: true
+  alpha: 0.05
+  mode: mondrian             # marginal | mondrian | mondrian+aci
+  aci:
+    enabled: true
+    gamma: 0.005
+    warmup_steps: 2000
+  drift:
+    ks_threshold: 0.10
+    recent_buffer: 5000
+    sliding_far_window_minutes: 10
+    far_overshoot_threshold: 0.005
+
+evaluation:
+  metrics: [macro_f1, auroc, ece, coverage, set_size, latency_ms]
+  baselines:
+    enabled: false
+    methods: [kitsune, egraphsage, anomale, rtids]
+  adversarial:
+    enabled: false
+    methods: [fgsm, pgd20]
+    epsilons: [0.0, 0.01, 0.03, 0.05, 0.10]
+    pgd_steps: 20
+    pgd_alpha: 0.005

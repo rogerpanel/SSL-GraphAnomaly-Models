@@ -260,7 +260,7 @@ If this code is useful in your own work, please cite the manuscript:
   journal   = {IEEE Transactions on Neural Networks and Learning Systems},
   year      = {2026},
   note      = {Under review. Reproducibility:
-               \url{https://github.com/rogerpanel/CV/tree/main/ssl_graph_anomaly}}
+               \url{https://github.com/rogerpanel/SSL-GraphAnomaly-Models}}
 }
 ```
 
